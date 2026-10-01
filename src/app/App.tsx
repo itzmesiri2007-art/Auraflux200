@@ -282,18 +282,6 @@ function Dashboard() {
   const { user, loading, isPasswordRecovery, signOut } = useAuth()
   const [saved, setSaved] = useState<SavedState>(readSaved)
 
-  // Sync user name from Supabase user metadata if available
-  useEffect(() => {
-    if (user?.user_metadata?.full_name) {
-      setSaved((prev) => {
-        if (prev.userName === "Jamie" || !prev.userName) {
-          return { ...prev, userName: user.user_metadata.full_name }
-        }
-        return prev
-      })
-    }
-  }, [user])
-
   const [modal, setModal] =
     useState<"add" | "edit" | "delete" | "reminders" | "help" | "profile" | null>(
       null,
@@ -313,19 +301,76 @@ function Dashboard() {
   const notified = useRef(new Set<string>())
   const location = useLocation()
   const navigate = useNavigate()
-  const route = location.pathname
-  const isHome = route === "/"
-  const page =
-    route === "/medicines"
-      ? "My medicines"
-      : route === "/schedule"
-        ? "My schedule"
-        : route === "/library"
-          ? "Medicine library"
-          : route === "/settings"
-            ? "Settings"
-            : "Overview"
 
+  // Sync user name from Supabase user metadata if available
+  useEffect(() => {
+    if (user?.user_metadata?.full_name) {
+      setSaved((prev) => {
+        if (prev.userName === "Jamie" || !prev.userName) {
+          return { ...prev, userName: user.user_metadata.full_name }
+        }
+        return prev
+      })
+    }
+  }, [user])
+
+  // Persist state to local storage
+  useEffect(() => {
+    try {
+      localStorage.setItem("dosewell-v1", JSON.stringify(saved))
+    } catch {}
+  }, [saved])
+
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (!toast) return
+    const timeout = setTimeout(() => setToast(""), 4500)
+    return () => clearTimeout(timeout)
+  }, [toast])
+
+  // Browser reminders check (triggered every 15s)
+  useEffect(() => {
+    if (!user) return
+    const interval = setInterval(() => {
+      if (
+        !saved.reminders ||
+        !("Notification" in window) ||
+        Notification.permission !== "granted"
+      )
+        return
+
+      const now = new Date()
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+        now.getMinutes(),
+      ).padStart(2, "0")}`
+
+      const todayDosesForNotif = getDosesForDate(saved.medicines, new Date(), saved.doseRecords)
+      todayDosesForNotif.forEach((dose) => {
+        if (
+          dose.scheduledTime === currentTime &&
+          dose.status !== "taken" &&
+          dose.status !== "skipped" &&
+          !notified.current.has(dose.doseId)
+        ) {
+          const food =
+            dose.medicine.foodInstruction &&
+            dose.medicine.foodInstruction !== "Any time"
+              ? ` (${dose.medicine.foodInstruction})`
+              : ""
+          const inst = dose.medicine.instructions
+            ? ` ${dose.medicine.instructions}.`
+            : ""
+          new Notification("Dosewell Prescription Reminder", {
+            body: `Hello ${saved.userName}, it is time to take ${dose.medicine.dosage} of ${dose.medicine.name}${food}.${inst}`,
+          })
+          notified.current.add(dose.doseId)
+        }
+      })
+    }, 15000)
+    return () => clearInterval(interval)
+  }, [user, saved.reminders, saved.userName, saved.medicines, saved.doseRecords])
+
+  // ── Early returns AFTER all hooks ──
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f4f7f5] flex flex-col items-center justify-center">
@@ -342,6 +387,19 @@ function Dashboard() {
   if (!user || isPasswordRecovery) {
     return <AuthScreen initialMode={isPasswordRecovery ? "reset" : "signin"} />
   }
+
+  const route = location.pathname
+  const isHome = route === "/"
+  const page =
+    route === "/medicines"
+      ? "My medicines"
+      : route === "/schedule"
+        ? "My schedule"
+        : route === "/library"
+          ? "Medicine library"
+          : route === "/settings"
+            ? "Settings"
+            : "Overview"
 
   const userDisplayName =
     saved.userName ||
@@ -399,60 +457,6 @@ function Dashboard() {
       return dose.status !== "taken" && dose.status !== "skipped"
     return true
   })
-
-  // Persist state to local storage
-  useEffect(() => {
-    try {
-      localStorage.setItem("dosewell-v1", JSON.stringify(saved))
-    } catch {}
-  }, [saved])
-
-  // Toast auto-dismiss
-  useEffect(() => {
-    if (!toast) return
-    const timeout = setTimeout(() => setToast(""), 4500)
-    return () => clearTimeout(timeout)
-  }, [toast])
-
-  // Browser reminders check (triggered every 15s)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (
-        !saved.reminders ||
-        !("Notification" in window) ||
-        Notification.permission !== "granted"
-      )
-        return
-
-      const now = new Date()
-      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
-        now.getMinutes(),
-      ).padStart(2, "0")}`
-
-      todayDoses.forEach((dose) => {
-        if (
-          dose.scheduledTime === currentTime &&
-          dose.status !== "taken" &&
-          dose.status !== "skipped" &&
-          !notified.current.has(dose.doseId)
-        ) {
-          const food =
-            dose.medicine.foodInstruction &&
-            dose.medicine.foodInstruction !== "Any time"
-              ? ` (${dose.medicine.foodInstruction})`
-              : ""
-          const inst = dose.medicine.instructions
-            ? ` ${dose.medicine.instructions}.`
-            : ""
-          new Notification("Dosewell Prescription Reminder", {
-            body: `Hello ${saved.userName}, it is time to take ${dose.medicine.dosage} of ${dose.medicine.name}${food}.${inst}`,
-          })
-          notified.current.add(dose.doseId)
-        }
-      })
-    }, 15000)
-    return () => clearInterval(interval)
-  }, [saved.reminders, saved.userName, todayDoses])
 
   // Toggle dose taken status
   function toggleDoseTaken(doseId: string) {
