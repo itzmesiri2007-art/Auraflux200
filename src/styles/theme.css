@@ -1,0 +1,52 @@
+:root {
+  --background: #f6f8f7;
+  --foreground: #223830;
+  --card: #ffffff;
+  --card-foreground: #223830;
+  --primary: #1d5544;
+  --primary-foreground: #ffffff;
+  --secondary: #edf3ef;
+  --secondary-foreground: #35584a;
+  --muted: #f2f5f3;
+  --muted-foreground: #6b7972;
+  --accent: #dfede4;
+  --accent-foreground: #1d5544;
+  --border: #e4eae6;
+  --ring: #398567;
+  --radius: 0.875rem;
+}
+.dark {
+  --background: #152b23;
+  --foreground: #f0f5f1;
+  --card: #1e382e;
+  --card-foreground: #f0f5f1;
+  --primary: #add4b9;
+  --primary-foreground: #152b23;
+  --secondary: #284438;
+  --secondary-foreground: #e2eee5;
+  --muted: #284438;
+  --muted-foreground: #b3c5b9;
+  --accent: #355e48;
+  --accent-foreground: #edf6f0;
+  --border: #3b5548;
+  --ring: #add4b9;
+}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --radius-lg: var(--radius);
+  --font-sans: "DM Sans", "Dosewell Telugu", "Dosewell Hindi", sans-serif;
+  --font-display: "Manrope", "Dosewell Telugu", "Dosewell Hindi", sans-serif;
+}

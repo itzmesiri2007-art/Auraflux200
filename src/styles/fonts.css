@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Manrope:wght@400;500;600;650;700;750;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap");
+
+@font-face {
+  font-family: "Dosewell Telugu";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/noto-telugu-regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Dosewell Telugu";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/noto-telugu-bold.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Dosewell Hindi";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/noto-hindi-regular.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Dosewell Hindi";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/noto-hindi-bold.ttf") format("truetype");
+}
