@@ -29,6 +29,7 @@ export default function AuthScreen({
 }) {
   const {
     signInWithPassword,
+    signInWithGoogle,
     signUp,
     resetPasswordForEmail,
     updatePassword,
@@ -51,9 +52,22 @@ export default function AuthScreen({
 
   // Feedback states
   const [loading, setLoading] = useState(false)
+  const [googleLoading, setGoogleLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [successMessage, setSuccessMessage] = useState("")
   const [resendCooldown, setResendCooldown] = useState(0)
+
+  // Handle Google OAuth Sign In
+  const handleGoogleSignIn = async () => {
+    setErrorMessage("")
+    setSuccessMessage("")
+    setGoogleLoading(true)
+    const { error } = await signInWithGoogle()
+    if (error) {
+      setGoogleLoading(false)
+      setErrorMessage(error.message)
+    }
+  }
 
   // Cooldown helper for resending verification
   const startResendCooldown = () => {
@@ -329,6 +343,58 @@ export default function AuthScreen({
                 >
                   Create account
                 </button>
+              </div>
+            )}
+
+            {/* Google OAuth Button */}
+            {(mode === "signin" || mode === "signup") && (
+              <div className="mb-6 space-y-4">
+                <button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading || googleLoading}
+                  className="w-full flex items-center justify-center gap-3 rounded-xl border border-[#d6e0d9] bg-white py-3 px-4 text-sm font-semibold text-[#244837] shadow-sm hover:bg-[#f6f9f7] hover:border-[#b8ccbe] active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed transition-all"
+                >
+                  {googleLoading ? (
+                    <>
+                      <Loader2 size={18} className="animate-spin text-[#184936]" />
+                      <span>Connecting to Google...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                        <path
+                          fill="#4285F4"
+                          d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.14z"
+                        />
+                        <path
+                          fill="#34A853"
+                          d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.26v3.15C3.27 21.36 7.36 24 12 24z"
+                        />
+                        <path
+                          fill="#FBBC05"
+                          d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.26C.46 8.17 0 9.99 0 12s.46 3.83 1.26 5.42l4.02-3.15z"
+                        />
+                        <path
+                          fill="#EA4335"
+                          d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.36 0 3.27 2.64 1.26 6.58l4.02 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                        />
+                      </svg>
+                      <span>Continue with Google</span>
+                    </>
+                  )}
+                </button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-[#e2eae4]" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-white px-2.5 text-[#7f9488] font-medium tracking-wider">
+                      or continue with email
+                    </span>
+                  </div>
+                </div>
               </div>
             )}
 
